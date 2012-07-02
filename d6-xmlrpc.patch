@@ -1,5 +1,31 @@
+diff --git a/includes/xmlrpcs.inc b/includes/xmlrpcs.inc
+index 049a92b..c253195 100644
+--- a/includes/xmlrpcs.inc
++++ b/includes/xmlrpcs.inc
+@@ -113,6 +113,21 @@ function xmlrpc_server_output($xml) {
+   header('Content-Type: text/xml');
+   header('Date: '. date('r'));
+   echo $xml;
++
++  $xhprof_runs_class = '/usr/share/php/xhprof_lib/utils/xhprof_runs.php';
++  if (file_exists($xhprof_runs_class)) {
++    require '/usr/share/php/xhprof_lib/utils/xhprof_lib.php';
++    require $xhprof_runs_class;
++    $namespace = variable_get('site_name', '');
++    $xhprof_data = xhprof_disable();
++
++    $class = "XHProfRuns_Default";
++    if (class_exists($class)) {
++      $xhprof_runs = new $class('/tmp');
++      $xhprof_runs->save_run($xhprof_data, $namespace);
++    }
++  }
++
+   exit;
+ }
+ 
 diff --git a/xmlrpc.php b/xmlrpc.php
-index 0f0300b..15d5a00 100644
+index 0f0300b..93848b2 100644
 --- a/xmlrpc.php
 +++ b/xmlrpc.php
 @@ -1,5 +1,5 @@
@@ -9,21 +35,3 @@ index 0f0300b..15d5a00 100644
  /**
   * @file
   * PHP page for handling incoming XML-RPC requests from clients.
-@@ -11,3 +11,17 @@ include_once './includes/xmlrpc.inc';
- include_once './includes/xmlrpcs.inc';
- 
- xmlrpc_server(module_invoke_all('xmlrpc'));
-+
-+$xhprof_runs_class = '/usr/share/php/xhprof_lib/utils/xhprof_runs.php';
-+if (file_exists($xhprof_runs_class)) {
-+  require '/usr/share/php/xhprof_lib/utils/xhprof_lib.php';
-+  require $xhprof_runs_class;
-+  $namespace = variable_get('site_name', '');
-+  $xhprof_data = xhprof_disable();
-+
-+  $class = "XHProfRuns_Default";
-+  if (class_exists($class)) {
-+    $xhprof_runs = new $class('/tmp');
-+    $xhprof_runs->save_run($xhprof_data, $namespace);
-+  }
-+}
