@@ -1,0 +1,30 @@
+diff --git a/index.php b/index.php
+index cc50460..b8562e7 100644
+--- a/index.php
++++ b/index.php
+@@ -1,5 +1,7 @@
+ <?php
+ 
++xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
++
+ /**
+  * @file
+  * The PHP page that serves all page requests on a Drupal installation.
+@@ -36,3 +38,17 @@ elseif (isset($return)) {
+ }
+ 
+ drupal_page_footer();
++
++$xhprof_runs_class = '/usr/share/php/xhprof_lib/utils/xhprof_runs.php';
++if (file_exists($xhprof_runs_class)) {
++  require '/usr/share/php/xhprof_lib/utils/xhprof_lib.php'; 
++  require $xhprof_runs_class; 
++  $namespace = variable_get('site_name', '');
++  $xhprof_data = xhprof_disable();
++
++  $class = "XHProfRuns_Default";
++  if (class_exists($class)) {
++    $xhprof_runs = new $class('/tmp');
++    $xhprof_runs->save_run($xhprof_data, $namespace);
++  }
++}
